@@ -31,11 +31,11 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     command: >
-      bash -c "python manage.py makemigrations &&
-      python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
-      python manage.py loaddata data_dump.json &&
-      gunicorn --bind 0:8000 foodgram.wsgi"
+      python manage.py makemigrations
+      python manage.py migrate
+      python manage.py collectstatic --noinput
+      python manage.py loaddata data_dump.json
+      gunicorn --bind 0:8000 foodgram.wsgi
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/

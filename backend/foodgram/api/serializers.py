@@ -1,7 +1,5 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from rest_framework.serializers import (SerializerMethodField, ModelSerializer,
-                                        ValidationError)
+from rest_framework.serializers import SerializerMethodField, ModelSerializer
 
 from recipes.models import Recipe
 
@@ -35,19 +33,6 @@ class UserSerializer(ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
-
-    def validate_username(self, username):
-        if (
-            settings.NAME_MIN_LENGTH
-            < len(username)
-            < settings.NAME_MAX_LENGTH
-        ):
-            raise ValidationError(
-                f'username должен быть длиной от'
-                f'{settings.NAME_MIN_LENGTH}'
-                f'до {settings.NAME_MAX_LENGTH} символов'
-            )
-        return username.lower()
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
