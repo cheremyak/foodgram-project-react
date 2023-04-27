@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-LOCAL_BUILD = False
+LOCAL_BUILD = True
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = '*)l3kc2z$b(i%umtp7c2(83t+7ruq-rn=-@ap^hie3sg7*z4s9'
 
 DEBUG = True
 
@@ -79,7 +79,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', default='postgres'),
         'USER': os.getenv('POSTGRES_USER', default='postgres',),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': os.getenv('DB_HOST', default='db'),
+        'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT', default='5432')
     }
 }
