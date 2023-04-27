@@ -14,7 +14,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '158.160.30.241',
+    'web',
+    'leoneed.hopto.org',
+    'backend',
+]
 
 
 INSTALLED_APPS = [
