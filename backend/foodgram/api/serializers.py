@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import SerializerMethodField, ModelSerializer
 
-from recipes.models import Recipe
+from recipes.models import Ingredient, Recipe, Tag
 
 User = get_user_model()
 
@@ -78,3 +78,17 @@ class SubscribeSerializer(UserSerializer):
             recipes = Recipe.objects.filter(author=obj)
         serializer = ShortRecipeSerializer(recipes, many=True)
         return serializer.data
+
+
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+        read_only_fields = '__all__',
+
+
+class IngredientSerializer(ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = '__all__'
+        read_only_fields = '__all__',

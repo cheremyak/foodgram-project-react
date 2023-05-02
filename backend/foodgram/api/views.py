@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework.decorators import action
@@ -6,9 +7,15 @@ from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED)
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from .filters import IngredientFilter
 from .paginators import LimitPageNumberPagination
-from .serializers import UserSerializer, SubscribeSerializer
+from .permissions import IsAdminOrReadOnly
+from .serializers import (IngredientSerializer,
+                          TagSerializer, UserSerializer,
+                          SubscribeSerializer)
+from recipes.models import Ingredient, Tag
 
 User = get_user_model()
 
@@ -47,3 +54,18 @@ class UserViewSet(DjoserUserViewSet):
             pages, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
+
+
+class TagViewSet(ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+class IngredientViewSet(ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    search_fields = ('name',)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = IngredientFilter
