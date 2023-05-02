@@ -66,6 +66,16 @@ class Recipe(models.Model):
         related_name='recipe',
         verbose_name='Автор'
     )
+    favorite = models.ManyToManyField(
+        verbose_name='Избранные рецепты',
+        related_name='favorites',
+        to=User,
+    )
+    cart = models.ManyToManyField(
+        verbose_name='Список покупок',
+        related_name='carts',
+        to=User,
+    )
     ingredients = models.ManyToManyField(
         Ingredient,
         related_name='ingredients',
