@@ -66,21 +66,6 @@ class Recipe(models.Model):
         related_name='recipe',
         verbose_name='Автор'
     )
-    favorite = models.ManyToManyField(
-        verbose_name='Избранные рецепты',
-        related_name='favorites',
-        to=User,
-    )
-    cart = models.ManyToManyField(
-        verbose_name='Список покупок',
-        related_name='carts',
-        to=User,
-    )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        related_name='ingredients',
-        verbose_name='Ингредиенты',
-    )
     tags = models.ManyToManyField(
         Tag,
         related_name='tags',
@@ -123,7 +108,7 @@ class IngredientAmount(models.Model):
         to=Recipe,
         on_delete=models.CASCADE,
     )
-    ingredients = models.ForeignKey(
+    ingredient = models.ForeignKey(
         verbose_name='Связанные ингредиенты',
         related_name='ingredient_amount',
         to=Ingredient,
@@ -153,3 +138,40 @@ class IngredientAmount(models.Model):
 
     def __str__(self):
         return f'{self.ingredients}'
+
+
+class FavoriteShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f'{self.user} :: {self.recipe}'
+
+
+class Favorite(FavoriteShoppingCart):
+
+    class Meta(FavoriteShoppingCart.Meta):
+        default_related_name = 'favorites'
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+
+
+class ShoppingCart(FavoriteShoppingCart):
+    """ Модель списка покупок. """
+
+    class Meta(FavoriteShoppingCart.Meta):
+        default_related_name = 'shopping_list'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
