@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-LOCAL_BUILD = True
+LOCAL_BUILD = False
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = '*)l3kc2z$b(i%umtp7c2(83t+7ruq-rn=-@ap^hie3sg7*z4s9'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
