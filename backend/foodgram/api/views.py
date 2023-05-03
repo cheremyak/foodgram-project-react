@@ -6,6 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST,
@@ -20,40 +21,43 @@ from .serializers import (IngredientSerializer, RecipeSerializer,
                           TagSerializer, UserSerializer,
                           SubscribeSerializer)
 from recipes.models import Ingredient, IngredientAmount, Recipe, Tag
-
+from users.models import Follow
 User = get_user_model()
 
 
 class UserViewSet(DjoserUserViewSet):
-    queryset = User.objects.order_by('-first_name')
+    queryset = User.objects.order_by('first_name')
     serializer_class = UserSerializer
-    additional_serializer = SubscribeSerializer
     pagination_class = LimitPageNumberPagination
 
-    @action(methods=('POST', 'DELETE'), detail=True)
-    def subscribe(self, request, **kwargs):
-        user = self.request.user
-        if user.is_anonymous:
-            return Response(status=HTTP_401_UNAUTHORIZED)
-        obj = get_object_or_404(self.queryset, id=kwargs.get('id'))
-        serializer = self.additional_serializer(
-            obj, context={'request': self.request}
-        )
-        if self.request.method == 'POST':
-            user.subscribe.add(obj)
-            return Response(serializer.data, status=HTTP_201_CREATED)
-        if self.request.method == 'DELETE':
-            user.subscribe.remove(obj)
-            return Response(status=HTTP_204_NO_CONTENT)
-        return Response(status=HTTP_400_BAD_REQUEST)
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated],
+    )
+    def subscribe(self, request, id):
+        user = request.user
+        author = get_object_or_404(User, pk=id)
 
-    @action(methods=('GET',), detail=False)
+        if request.method == 'POST':
+            serializer = SubscribeSerializer(
+                author, data=request.data, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            Follow.objects.create(user=user, author=author)
+            return Response(serializer.data, status=HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            get_object_or_404(
+                Follow, user=user, author=author
+            ).delete()
+            return Response(status=HTTP_204_NO_CONTENT)
+
+    @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        user = self.request.user
-        if user.is_anonymous:
-            return Response(status=HTTP_401_UNAUTHORIZED)
-        authors = user.subscribe.all()
-        pages = self.paginate_queryset(authors)
+        user = request.user
+        queryset = User.objects.filter(following__user=user)
+        pages = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(
             pages, many=True, context={'request': request}
         )

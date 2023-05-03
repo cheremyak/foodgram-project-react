@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from django.db.models import F, Q, UniqueConstraint
 
 from .validators import validate_username
 
@@ -37,17 +38,12 @@ class User(AbstractUser):
         blank=False,
         verbose_name='Фамилия'
     )
-    subscribe = models.ManyToManyField(
-        verbose_name='Подписка на других пользователей',
-        related_name='subscriptions',
-        to='self',
-        symmetrical=False,
-        blank=True
-    )
     role = models.CharField(
         'Роль', max_length=9, choices=ROLES, default=USER,
         error_messages={'validators': 'Выбрана несуществующая роль'}
     )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name', )
 
     class Meta:
         ordering = ('username',)
@@ -63,3 +59,36 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='follower',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Подписчик',
+        related_name='following'
+    )
+
+    class Meta:
+        ordering = ('-id', )
+        constraints = [
+            UniqueConstraint(
+                fields=('user', 'author'),
+                name='unique_follow'
+            ),
+            models.CheckConstraint(
+                check=~Q(user=F('author')),
+                name='no_self_follow'
+            )
+        ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self) -> str:
+        return f'{self.user} подписан на {self.author}'
