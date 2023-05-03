@@ -114,8 +114,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source="ingredient.id")
-    name = serializers.CharField(source="ingredient.name", read_only=True)
+    id = serializers.IntegerField(source="ingredients.id")
+    name = serializers.CharField(source="ingredients.name", read_only=True)
     measurement_unit = serializers.CharField(
         source="ingredients.measurement_unit", read_only=True
     )
@@ -261,7 +261,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         for ingredient_data in ingredients:
             ingredient_list.append(
                 IngredientAmount(
-                    ingredient=ingredient_data.pop('id'),
+                    ingredients=ingredient_data.pop('id'),
                     amount=ingredient_data.pop('amount'),
                     recipe=recipe,
                 )
@@ -279,7 +279,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             **validated_data
         )
         recipe.tags.set(tags)
-        self.create_ingredients(ingredients, recipe)
+        self.create_ingredients(recipe, ingredients)
         return recipe
 
     def update(self, instance, validated_data):
