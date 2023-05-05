@@ -7,9 +7,10 @@ from djoser.views import UserViewSet as DjoserUserViewSet
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
+                                   HTTP_400_BAD_REQUEST)
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Follow
 
@@ -28,6 +29,26 @@ class UserViewSet(DjoserUserViewSet):
     queryset = User.objects.order_by('first_name')
     serializer_class = UserSerializer
     pagination_class = LimitPageNumberPagination
+
+    @action(
+        methods=('post',),
+        detail=False,
+        permission_classes=(AllowAny,)
+    )
+    def register(self, request):
+        serializer = UserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                serializer.errors,
+                status=HTTP_400_BAD_REQUEST
+            )
 
     @action(
         detail=True,
@@ -79,7 +100,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.order_by('author')
+    queryset = Recipe.objects.order_by('pub_date')
     serializer_class = RecipeCreateSerializer
     permission_classes = (UserAndAdminOrReadOnly,)
     pagination_class = LimitPageNumberPagination
@@ -162,42 +183,3 @@ class RecipeViewSet(ModelViewSet):
             recipe=get_object_or_404(Recipe, id=pk)
         ).delete()
         return Response(status=HTTP_204_NO_CONTENT)
-
-
-class UserViewSet(UserViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    pagination_class = LimitPageNumberPagination
-
-    @action(
-        detail=True,
-        methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated],
-    )
-    def subscribe(self, request, id):
-        user = request.user
-        author = get_object_or_404(User, pk=id)
-
-        if request.method == 'POST':
-            serializer = SubscribeSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
-            return Response(serializer.data, status=HTTP_201_CREATED)
-
-        if request.method == 'DELETE':
-            get_object_or_404(
-                Follow, user=user, author=author
-            ).delete()
-            return Response(status=HTTP_204_NO_CONTENT)
-
-    @action(detail=False, permission_classes=[IsAuthenticated])
-    def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(following__user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(
-            pages, many=True, context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)

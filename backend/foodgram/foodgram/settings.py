@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
+from decouple import Csv, config
+
 load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -9,6 +11,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '*)l3kc2z$b(i%umtp7c2(83t+7ruq-rn=-@ap^hie3sg7*z4s9'
 
 DEBUG = False
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost, http://127.0.0.1',
+    cast=Csv()
+)
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -35,7 +43,6 @@ INSTALLED_APPS = [
     'django_filters',
     'djoser',
     'drf_yasg',
-    'colorfield',
 ]
 
 MIDDLEWARE = [
@@ -75,7 +82,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', default='postgres'),
         'USER': os.getenv('POSTGRES_USER', default='postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': os.getenv('DB_HOST'),
+        'HOST': os.getenv('DB_HOST', default='localhost'),
         'PORT': os.getenv('DB_PORT', default='5432')
     }
 }
@@ -121,7 +128,7 @@ DJOSER = {
         'user': 'api.serializers.UserSerializer',
         'user_list': 'api.serializers.UserSerializer',
         'current_user': 'api.serializers.UserSerializer',
-        'user_create': 'api.serializers.UserCreateSerializer',
+        'user_create': 'api.serializers.UserSerializer',
     },
 }
 
