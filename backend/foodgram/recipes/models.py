@@ -169,7 +169,6 @@ class Favorite(FavoriteShoppingCart):
 
 
 class ShoppingCart(FavoriteShoppingCart):
-    """ Модель списка покупок. """
 
     class Meta(FavoriteShoppingCart.Meta):
         default_related_name = 'shopping_list'
