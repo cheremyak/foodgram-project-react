@@ -2,7 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-from decouple import Csv, config
 
 load_dotenv()
 
@@ -12,11 +11,10 @@ SECRET_KEY = '*)l3kc2z$b(i%umtp7c2(83t+7ruq-rn=-@ap^hie3sg7*z4s9'
 
 DEBUG = False
 
-CSRF_TRUSTED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='http://localhost, http://127.0.0.1',
-    cast=Csv()
-)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://127.0.0.1',
+]
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -41,8 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'django_extensions',
     'djoser',
-    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -144,10 +142,10 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Global variables

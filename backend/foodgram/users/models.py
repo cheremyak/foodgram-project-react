@@ -43,6 +43,14 @@ class User(AbstractUser):
         default=USER,
         error_messages={'validators': 'Выбрана несуществующая роль'}
     )
+    subscribe = models.ManyToManyField(
+        verbose_name='Подписка на других пользователей',
+        related_name='subscribers',
+        to='self',
+        symmetrical=False,
+        blank=True
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name', )
 
@@ -61,36 +69,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.username}: {self.email}'
-
-
-class Follow(models.Model):
-    user = models.ForeignKey(
-        to=User,
-        on_delete=models.CASCADE,
-        verbose_name='Автор',
-        related_name='follower',
-    )
-    author = models.ForeignKey(
-        to=User,
-        on_delete=models.CASCADE,
-        verbose_name='Подписчик',
-        related_name='following'
-    )
-
-    class Meta:
-        ordering = ('-id', )
-        constraints = [
-            models.UniqueConstraint(
-                fields=('user', 'author'),
-                name='unique_follow'
-            ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('author')),
-                name='no_self_follow'
-            )
-        ]
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-
-    def __str__(self) -> str:
-        return f'{self.user} подписан на {self.author}'

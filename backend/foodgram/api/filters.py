@@ -10,7 +10,7 @@ class IngredientFilter(FilterSet):
         fields = ('name',)
 
 
-class RecipeFilter(FilterSet):
+class RecipeFilters(FilterSet):
     tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         method='filter_tags'

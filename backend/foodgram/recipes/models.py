@@ -91,7 +91,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Изображение блюда',
-        upload_to='recipes/',
+        upload_to='recipe_images/',
     )
     name = models.CharField(
         max_length=settings.RECIPE_NAME_MAX_CHARS,
@@ -113,6 +113,22 @@ class Recipe(models.Model):
         verbose_name='Дата публикации',
         auto_now_add=True,
         editable=False,
+    )
+    favorite = models.ManyToManyField(
+        to=User,
+        verbose_name='Избранные рецепты',
+        related_name='favorites',
+    )
+    ingredients = models.ManyToManyField(
+        to=Ingredient,
+        verbose_name='Ингредиенты блюда',
+        related_name='recipes',
+        through='recipes.IngredientAmount',
+    )
+    cart = models.ManyToManyField(
+        to=User,
+        verbose_name='Список покупок',
+        related_name='carts',
     )
 
     def __str__(self):
@@ -136,13 +152,13 @@ class Recipe(models.Model):
 
 class IngredientAmount(models.Model):
     recipe = models.ForeignKey(
-        Recipe,
+        to=Recipe,
         verbose_name='В рецептах',
-        related_name='ingredients',
+        related_name='ingredient_amount',
         on_delete=models.CASCADE,
     )
-    ingredient = models.ForeignKey(
-        Ingredient,
+    ingredients = models.ForeignKey(
+        to=Ingredient,
         verbose_name='Связанные ингредиенты',
         related_name='ingredient_amount',
         on_delete=models.CASCADE,
@@ -174,62 +190,7 @@ class IngredientAmount(models.Model):
         ordering = ('recipe', )
         constraints = (
             models.UniqueConstraint(
-                fields=('recipe', 'ingredient', ),
+                fields=('recipe', 'ingredients', ),
                 name='\n%(app_label)s_%(class)s Ингредиент уже добавлен\n',
-            ),
-        )
-
-
-class Favorite(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-    )
-
-    def __str__(self):
-        return f'{self.user} :: {self.recipe}'
-
-    class Meta:
-        verbose_name = 'Избранное'
-        verbose_name_plural = 'Избранное'
-        constraints = (
-            models.UniqueConstraint(
-                fields=('recipe', 'user', ),
-                name='\n%(app_label)s_%(class)s Рецепт уже в избранном\n',
-            ),
-        )
-
-
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-    )
-
-    def __str__(self):
-        return f'{self.user} :: {self.recipe}'
-
-    class Meta:
-        default_related_name = 'shopping_list'
-        verbose_name = 'Корзина'
-        verbose_name_plural = 'Корзина'
-        constraints = (
-            models.UniqueConstraint(
-                fields=('recipe', 'user', ),
-                name='\n%(app_label)s_%(class)s Рецепт уже в списке покупок\n',
             ),
         )

@@ -1,7 +1,7 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
-from .models import (Favorite, Ingredient, IngredientAmount, Recipe,
-                     ShoppingCart, Tag)
+from .models import Ingredient, IngredientAmount, Recipe, Tag
 
 
 @admin.register(Tag)
@@ -20,35 +20,28 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'author')
-    list_filter = ('name', 'author', 'tags')
-    search_fields = ('name', 'author')
+    list_display = ('id', 'name', 'author', 'get_image',)
+    readonly_fields: ('get_image',)
+    fields = (
+        ('name', 'cooking_time',),
+        ('author', 'tags',),
+        ('text',),
+        ('image',),
+    )
+    raw_id_fields = ('author', )
+    search_fields = (
+        'name', 'author__username', 'author__email'
+    )
+    list_filter = (
+        'name', 'author__username',
+    )
+    save_on_top = True
 
-    def get_favorites(self, obj):
-        return obj.favorites.count()
-    get_favorites.short_description = 'Избранное'
-
-    def get_ingredients(self, obj):
-        return ', '.join([
-            ingredients.name for ingredients
-            in obj.ingredients.all()])
-    get_ingredients.short_description = 'Ингридиенты'
+    def get_image(self, obj):
+        return mark_safe(f'<img src={obj.image.url} width="80" hieght="30">')
+    get_image.short_description = 'Изображение'
 
 
 @admin.register(IngredientAmount)
 class IngredientAmountAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'amount', 'recipe', 'ingredient')
-
-
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
-    list_filter = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
-
-
-@admin.register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'user')
-    list_filter = ('recipe', 'user')
-    search_fields = ('user', )
+    list_display = ('__str__', 'amount', 'recipe')
