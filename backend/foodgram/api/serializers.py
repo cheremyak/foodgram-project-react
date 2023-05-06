@@ -242,8 +242,7 @@ class SubscribeSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    class Meta:
-        model = User
+    class Meta(UserSerializer.Meta):
         fields = (
             'email',
             'id',
@@ -253,35 +252,16 @@ class SubscribeSerializer(UserSerializer):
             'recipes',
             'recipes_count',
         )
-        read_only_fields = '__all__',
-
-    def validate(self, data):
-        author_id = self.context.get(
-            'request').parser_context.get('kwargs').get('id')
-        author = get_object_or_404(User, id=author_id)
-        user = self.context.get('request').user
-        if user.follower.filter(author=author_id).exists():
-            raise ValidationError(
-                detail='Подписка уже существует',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        if user == author:
-            raise ValidationError(
-                detail='Нельзя подписаться на самого себя',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        return data
+        read_only_fields = ('email', 'username', 'last_name', 'first_name',)
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
     def get_recipes(self, obj):
-        query_params = self.context['request'].query_params
-        recipes_limit = query_params.get('recipes_limit', False)
-        if recipes_limit:
-            recipes_limit = int(recipes_limit)
-            recipes = Recipe.objects.filter(author=obj)[:recipes_limit]
-        else:
-            recipes = Recipe.objects.filter(author=obj)
-        serializer = ShortRecipeSerializer(recipes, many=True)
+        request = self.context.get('request')
+        limit = request.query_params.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data

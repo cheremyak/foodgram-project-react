@@ -30,7 +30,7 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(
         detail=True,
-        methods=('POST', 'DELETE'),
+        methods=('POST', 'DELETE',),
         permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, **kwargs):
@@ -51,16 +51,16 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(
         detail=False,
-        methods=('GET'),
-        permission_classes=[IsAuthenticated])
+        methods=('GET',),
+        permission_classes=[IsAuthenticated]
+    )
     def subscriptions(self, request):
-        user = self.request.user
-        if user.is_anonymous:
+        queryset = User.objects.filter(subscribers=request.user)
+        if request.user.is_anonymous:
             return Response(status=HTTP_401_UNAUTHORIZED)
-        authors = user.subscribe.all()
-        pages = self.paginate_queryset(authors)
+        page = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(
-            pages, many=True, context={'request': request}
+            page, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
