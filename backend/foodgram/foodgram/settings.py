@@ -144,7 +144,19 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+
+# Global variables
+
+USER_MAX_CHARS = 150
+EMAIL_MAX_CHARS = 254
+ROLE_MAX_LENGTH = 9
+RECIPES_MAX_CHARS = 64
+HEX_MAX_CHARS = 7
+TAG_SLUG_MAX_CHARS = 32
+RECIPE_NAME_MAX_CHARS = 200
+MIN_COOKING_TIME_AMOUNT = 1
