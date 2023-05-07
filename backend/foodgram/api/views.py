@@ -55,12 +55,13 @@ class UserViewSet(DjoserUserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        queryset = User.objects.filter(subscribers=request.user)
-        if request.user.is_anonymous:
+        user = self.request.user
+        if user.is_anonymous:
             return Response(status=HTTP_401_UNAUTHORIZED)
-        page = self.paginate_queryset(queryset)
+        authors = user.subscribe.all()
+        pages = self.paginate_queryset(authors)
         serializer = SubscribeSerializer(
-            page, many=True, context={'request': request}
+            pages, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
