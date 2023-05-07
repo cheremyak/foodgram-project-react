@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+
   nginx:
     image: nginx:1.19.3
     ports:
@@ -39,7 +40,7 @@ services:
       gunicorn --bind 0:8000 foodgram.wsgi"
     volumes:
       - static_value:/app/static/
-      - media_value:/app/media/
+      - media_value:/app/media/recipes/
     depends_on:
       - db
     env_file:
