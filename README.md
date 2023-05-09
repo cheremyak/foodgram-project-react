@@ -18,7 +18,7 @@ POSTGRES_PASSWORD=postgres<br/>
 DB_HOST=db<br/>
 DB_PORT=5432<br/>
 
-Не выходя из директории ifra запустите установку и сборку контейнеров<br/>
+Не выходя из директории infra запустите установку и сборку контейнеров<br/>
 docker compose up -d --build<br/>
 
 После запуска контейнера сайт доступен по адресу http://localhost/<br/>
