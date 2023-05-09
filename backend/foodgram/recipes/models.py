@@ -123,7 +123,7 @@ class Recipe(models.Model):
         to=Ingredient,
         verbose_name='Ингредиенты блюда',
         related_name='recipes',
-        through='recipes.IngredientAmount',
+        through='IngredientAmount',
     )
     cart = models.ManyToManyField(
         to=User,

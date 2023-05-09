@@ -4,6 +4,11 @@ from django.utils.safestring import mark_safe
 from .models import Ingredient, IngredientAmount, Recipe, Tag
 
 
+class IngredientInline(admin.TabularInline):
+    model = IngredientAmount
+    extra = 1
+
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'color', 'slug')
@@ -20,7 +25,8 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author', 'get_image',)
+    list_display = ('id', 'name', 'author', 'get_image',
+                    'get_favorites', 'get_ingredients',)
     readonly_fields: ('get_image',)
     fields = (
         ('name', 'cooking_time',),
@@ -33,13 +39,24 @@ class RecipeAdmin(admin.ModelAdmin):
         'name', 'author__username', 'author__email'
     )
     list_filter = (
-        'name', 'author__username',
+        'name', 'author__username', 'tags__name',
     )
     save_on_top = True
+    inlines = (IngredientInline,)
 
     def get_image(self, obj):
         return mark_safe(f'<img src={obj.image.url} width="80" hieght="30">')
     get_image.short_description = 'Изображение'
+
+    def get_favorites(self, obj):
+        return obj.favorite.count()
+    get_favorites.short_description = 'В избранном'
+
+    def get_ingredients(self, obj):
+        return ', '.join([
+            ingredients.name for ingredients
+            in obj.ingredients.all()])
+    get_ingredients.short_description = 'Ингридиенты'
 
 
 @admin.register(IngredientAmount)
