@@ -57,8 +57,8 @@ class Tag(models.Model):
         unique=True,
         validators=[
             RegexValidator(
-                "^#([A-Fa-f0-9]{6})$",
-                "введите HEX-код цвета"
+                '^#([A-Fa-f0-9]{6})$',
+                'введите HEX-код цвета'
             )
         ]
     )
