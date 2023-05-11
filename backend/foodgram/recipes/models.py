@@ -51,13 +51,12 @@ class Tag(models.Model):
     color = models.CharField(
         verbose_name='Цветовой HEX-код',
         max_length=settings.HEX_MAX_CHARS,
-        blank=True,
         null=True,
         default='#',
         unique=True,
         validators=[
             RegexValidator(
-                '^#([A-Fa-f0-9]{6})$',
+                '^[0-9A-F]+$',
                 'введите HEX-код цвета'
             )
         ]
@@ -166,19 +165,12 @@ class IngredientAmount(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         default=0,
-        validators=(
+        validators=[
             MinValueValidator(
                 settings.MIN_COOKING_TIME_AMOUNT,
                 'Минимальное значение 1'
-            ),
-            RegexValidator(
-                '^[0-9]+$',
-                (
-                    'Количество ингредиента может быть '
-                    'только числом >=1'
-                )
-            ),
-        ),
+            )
+        ]
     )
 
     def __str__(self):
