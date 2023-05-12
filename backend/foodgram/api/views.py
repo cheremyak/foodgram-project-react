@@ -101,6 +101,27 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def post_delete_obj(self, request, table, **kwargs):
+        user = self.request.user
+        pk = kwargs.get('pk')
+        if user.is_anonymous:
+            return Response(status=HTTP_401_UNAUTHORIZED)
+        obj = get_object_or_404(self.queryset, id=pk)
+        serializer = self.additional_serializer(
+            obj, context={'request': self.request}
+        )
+        tables = {
+            'carts': user.carts,
+        }
+        table = tables[table]
+        if self.request.method == 'POST':
+            table.add(obj)
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        if self.request.method == 'DELETE':
+            table.remove(obj)
+            return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_400_BAD_REQUEST)
+
     @action(
         detail=True, methods=['POST', 'DELETE'],
         permission_classes=[IsAuthenticated]
@@ -133,7 +154,7 @@ class RecipeViewSet(ModelViewSet):
         detail=True
     )
     def shopping_cart(self, request, **kwargs):
-        return self._post_delete_obj(request, 'carts', **kwargs)
+        return self.post_delete_obj(request, 'carts', **kwargs)
 
     @action(
         methods=('GET',),

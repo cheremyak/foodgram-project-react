@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -41,6 +42,15 @@ class UserSerializer(serializers.ModelSerializer):
         if user.is_anonymous or (user == obj):
             return False
         return user.subscribe.filter(id=obj.id).exists()
+
+
+class UserCreateSerializer(UserCreateSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'email', 'username', 'first_name',
+            'last_name', 'password')
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
