@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientAmount, Recipe, Tag
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from recipes.models import Favorite, Ingredient, IngredientAmount, Recipe, Tag
 
 User = get_user_model()
 
@@ -131,7 +132,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return user.favorites.filter(id=obj.id).exists()
+        return Favorite.objects.filter(
+            user=user, recipe=obj.id
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
@@ -201,12 +204,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return name
 
     def create_ingredients(self, ingredients, recipe):
-        for ingredient in ingredients:
-            IngredientAmount.objects.get_or_create(
-                recipe=recipe,
-                ingredients=ingredient['id'],
-                amount=ingredient['amount']
-            )
+        IngredientAmount.objects.bulk_create(
+            [
+                IngredientAmount(
+                    recipe=recipe,
+                    ingredients=ingredient['id'],
+                    amount=ingredient['amount'],
+                )
+                for ingredient in ingredients
+            ]
+        )
 
     def create(self, validated_data):
         image = validated_data.pop('image')
@@ -257,9 +264,23 @@ class SubscribeSerializer(UserSerializer):
         limit = request.GET.get('recipes_limit')
         recipes = obj.recipes.all()
         if limit:
-            recipes = recipes[: int(limit)]
+            try:
+                recipes = recipes[:int(limit)]
+            except ValueError as error:
+                print(error, 'параметр limit не удалось преобразовать в число')
         serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    image = serializers.ImageField(source='recipe.image')
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+
+    class Meta:
+        model = Favorite
+        fields = ('id', 'name', 'image', 'cooking_time')

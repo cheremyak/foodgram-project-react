@@ -2,9 +2,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import F, Sum
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
-from recipes.models import Ingredient, IngredientAmount, Recipe, Tag
+from recipes.models import Favorite, Ingredient, IngredientAmount, Recipe, Tag
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,8 +14,9 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .filters import IngredientFilter, RecipeFilters
 from .paginators import LimitPageNumberPagination
 from .permissions import IsAdminOrReadOnly, UserAndAdminOrReadOnly
-from .serializers import (IngredientSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, SubscribeSerializer,
+from .serializers import (FavoriteSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeSerializer,
+                          SubscribeSerializer,
                           TagSerializer, UserSerializer, ShortRecipeSerializer)
 
 User = get_user_model()
@@ -77,8 +77,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
     search_fields = ('name',)
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = IngredientFilter
+    filter_backends = [IngredientFilter]
 
 
 class RecipeViewSet(ModelViewSet):
@@ -102,47 +101,39 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-
-    def post_delete_obj(self, request, table, **kwargs):
-        user = self.request.user
-        pk = kwargs.get('pk')
-        if user.is_anonymous:
-            return Response(status=HTTP_401_UNAUTHORIZED)
-        obj = get_object_or_404(self.queryset, id=pk)
-        serializer = self.additional_serializer(
-            obj, context={'request': self.request}
-        )
-        tables = {
-            'favorites': user.favorites,
-            'carts': user.carts,
-        }
-        table = tables[table]
-        if self.request.method == 'POST':
-            table.add(obj)
-            return Response(serializer.data, status=HTTP_201_CREATED)
-        if self.request.method == 'DELETE':
-            table.remove(obj)
-            return Response(status=HTTP_204_NO_CONTENT)
-        return Response(status=HTTP_400_BAD_REQUEST)
-
     @action(
-        methods=('POST', 'DELETE'),
-        detail=True
+        detail=True, methods=['POST', 'DELETE'],
+        permission_classes=[IsAuthenticated]
     )
-    def favorite(self, request, **kwargs):
-        return self.post_delete_obj(request, 'favorites', **kwargs)
+    def favorite(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'DELETE':
+            if not Favorite.objects.filter(user=user).exists():
+                return Response(
+                    'Рецепт отсутсвует.',
+                    status=HTTP_400_BAD_REQUEST
+                )
+            Favorite.objects.get(
+                user=user,
+                recipe=recipe,
+            ).delete()
+            return Response(status=HTTP_204_NO_CONTENT)
+        favorite = Favorite.objects.create(
+            user=user,
+            recipe=recipe,
+        )
+        serializer = FavoriteSerializer(
+            favorite, context={"request": request}
+        )
+        return Response(serializer.data, status=HTTP_201_CREATED)
 
     @action(
         methods=('POST', 'DELETE'),
         detail=True
     )
     def shopping_cart(self, request, **kwargs):
-        return self.post_delete_obj(request, 'carts', **kwargs)
+        return self._post_delete_obj(request, 'carts', **kwargs)
 
     @action(
         methods=('GET',),

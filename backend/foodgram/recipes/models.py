@@ -113,11 +113,6 @@ class Recipe(models.Model):
         auto_now_add=True,
         editable=False,
     )
-    favorite = models.ManyToManyField(
-        to=User,
-        verbose_name='Избранные рецепты',
-        related_name='favorites',
-    )
     cart = models.ManyToManyField(
         to=User,
         verbose_name='Список покупок',
@@ -180,3 +175,26 @@ class IngredientAmount(models.Model):
                 name='\n%(app_label)s_%(class)s Ингредиент уже добавлен\n',
             ),
         )
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorite_recipes',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Рецепты'
+    )
+
+    class Meta():
+        ordering = ('-id',)
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
+
+    def __str__(self):
+        return 'Избранные рецепты'

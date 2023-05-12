@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Ingredient, IngredientAmount, Recipe, Tag
+from .models import Favorite, Ingredient, IngredientAmount, Recipe, Tag
 
 
 class IngredientInline(admin.TabularInline):
@@ -56,3 +56,9 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(IngredientAmount)
 class IngredientAmountAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'amount', 'recipe')
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('recipe', 'user')
+    list_filter = ('user',)
