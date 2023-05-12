@@ -26,7 +26,7 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author', 'get_image',
-                    'get_favorites', 'get_ingredients',)
+                    'get_favorites',)
     readonly_fields: ('get_image',)
     fields = (
         ('name', 'cooking_time',),
@@ -51,12 +51,6 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_favorites(self, obj):
         return obj.favorite.count()
     get_favorites.short_description = 'В избранном'
-
-    def get_ingredients(self, obj):
-        return ', '.join([
-            ingredients.name for ingredients
-            in obj.ingredients.all()])
-    get_ingredients.short_description = 'Ингридиенты'
 
 
 @admin.register(IngredientAmount)

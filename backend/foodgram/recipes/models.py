@@ -118,12 +118,6 @@ class Recipe(models.Model):
         verbose_name='Избранные рецепты',
         related_name='favorites',
     )
-    ingredients = models.ManyToManyField(
-        to=Ingredient,
-        verbose_name='Ингредиенты блюда',
-        related_name='recipes',
-        through='IngredientAmount',
-    )
     cart = models.ManyToManyField(
         to=User,
         verbose_name='Список покупок',
