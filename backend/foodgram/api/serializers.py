@@ -198,8 +198,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_name(self, data):
-        name = " ".join(data.split()).strip().lower()
-        return name
+        return " ".join(data.split()).strip().lower()
 
     def create_ingredients(self, ingredients, recipe):
         IngredientAmount.objects.bulk_create(
@@ -234,11 +233,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        data = RecipeSerializer(
+        return RecipeSerializer(
             instance,
             context={'request': self.context.get('request')}
         ).data
-        return data
 
 
 class SubscribeSerializer(UserSerializer):
