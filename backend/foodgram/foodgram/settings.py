@@ -125,7 +125,7 @@ DJOSER = {
         'user': 'api.serializers.UserSerializer',
         'user_list': 'api.serializers.UserSerializer',
         'current_user': 'api.serializers.UserSerializer',
-        'user_create': 'api.serializers.UserCreateSerializer',
+        'user_create': 'djoser.serializers.UserCreateSerializer',
     },
 }
 

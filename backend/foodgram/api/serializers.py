@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import Favorite, Ingredient, IngredientAmount, Recipe, Tag
 from rest_framework import serializers
@@ -20,7 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'is_subscribed',
-            'password',
         )
         extra_kwargs = {'password': {'write_only': True}}
         read_only_fields = 'is_subscribed',
@@ -30,15 +28,6 @@ class UserSerializer(serializers.ModelSerializer):
         if user.is_anonymous or (user == obj):
             return False
         return user.subscribe.filter(id=obj.id).exists()
-
-
-class UserCreateSerializer(UserCreateSerializer):
-
-    class Meta:
-        model = User
-        fields = (
-            'email', 'username', 'first_name',
-            'last_name', 'password')
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -130,9 +119,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Favorite.objects.filter(
-            user=user, recipe=obj.id
-        ).exists()
+        return Favorite.objects.select_related('user').exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
@@ -262,8 +249,10 @@ class SubscribeSerializer(UserSerializer):
         if limit:
             try:
                 recipes = recipes[:int(limit)]
-            except ValueError as error:
-                print(error, 'параметр limit не удалось преобразовать в число')
+            except ValueError:
+                raise ValueError(
+                    'параметр limit не удалось преобразовать в число'
+                )
         serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
