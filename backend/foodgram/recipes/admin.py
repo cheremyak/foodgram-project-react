@@ -69,5 +69,5 @@ class FavoriteAdmin(admin.ModelAdmin):
 class CartAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'cart',
+        'recipe',
     )

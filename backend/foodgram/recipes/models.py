@@ -116,11 +116,6 @@ class Recipe(models.Model):
         auto_now_add=True,
         editable=False,
     )
-    cart = models.ManyToManyField(
-        to=User,
-        verbose_name='Список покупок',
-        related_name='carts',
-    )
 
     def __str__(self):
         return f'{self.name}. Автор: {self.author.username}'
@@ -214,7 +209,7 @@ class Cart(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
-    cart = models.ForeignKey(
+    recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='carts',
@@ -227,7 +222,7 @@ class Cart(models.Model):
         verbose_name_plural = 'Списки покупок'
         constraints = [
             models.UniqueConstraint(
-                fields=('user', 'cart'),
+                fields=('user', 'recipe'),
                 name='unique_shopping_cart'
             )
         ]
