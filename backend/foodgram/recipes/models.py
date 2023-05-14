@@ -4,6 +4,8 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models.functions import Length
 
+from users.models import EN_RU_LETTERS_ONLY
+
 User = get_user_model()
 
 models.CharField.register_lookup(Length)
@@ -13,6 +15,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Ингредиент',
         max_length=settings.RECIPES_MAX_CHARS,
+        validators=[EN_RU_LETTERS_ONLY]
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
@@ -56,12 +59,12 @@ class Tag(models.Model):
         unique=True,
         validators=[
             RegexValidator(
-                '^#(?:[0-9a-fA-F]{2}){3,4}$',
+                '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
                 'введите HEX-код цвета'
             )
         ]
     )
-    slug = models.CharField(
+    slug = models.SlugField(
         verbose_name='Слаг тэга',
         max_length=settings.TAG_SLUG_MAX_CHARS,
         unique=True,

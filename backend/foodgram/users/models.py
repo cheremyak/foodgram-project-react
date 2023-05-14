@@ -1,10 +1,9 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.validators import RegexValidator
 from django.db import models
 
-from .validators import validate_username
+from .validators import EN_RU_LETTERS_ONLY, validate_username
 
 
 class User(AbstractUser):
@@ -26,23 +25,13 @@ class User(AbstractUser):
         max_length=settings.USER_MAX_CHARS,
         blank=False,
         verbose_name='Имя',
-        validators=[
-            RegexValidator(
-                '[A-zА-яЁё]',
-                'Имя: допустимы только буквы кириллицы и латиницы'
-            )
-        ]
+        validators=[EN_RU_LETTERS_ONLY]
     )
     last_name = models.CharField(
         max_length=settings.USER_MAX_CHARS,
         blank=False,
         verbose_name='Фамилия',
-        validators=[
-            RegexValidator(
-                '[A-zА-яЁё]',
-                'Фамилия: допустимы только буквы кириллицы и латиницы'
-            )
-        ]
+        validators=[EN_RU_LETTERS_ONLY]
     )
     subscribe = models.ManyToManyField(
         verbose_name='Подписка на других пользователей',
