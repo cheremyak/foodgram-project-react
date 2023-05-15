@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
 
-EN_RU_LETTERS_ONLY = RegexValidator(
+en_ru_letters_only = RegexValidator(
     '[A-zА-яЁё]',
     'Допустимы только буквы кириллицы и латиницы'
 )

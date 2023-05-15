@@ -21,7 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
         )
-        extra_kwargs = {'password': {'write_only': True}}
         read_only_fields = 'is_subscribed',
 
     def get_is_subscribed(self, obj):
