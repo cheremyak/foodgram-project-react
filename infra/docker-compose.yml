@@ -6,10 +6,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env
+      - .env
 
   backend:
     image: cheremyak/foodgram-backend:latest
+    restart: always
     command: >
       bash -c "cd foodgram/ &&
       python manage.py migrate &&
@@ -22,7 +23,7 @@ services:
     depends_on:
       - db
     env_file:
-      - ./.env
+      - .env
 
   frontend:
     image: cheremyak/foodgram-frontend:latest
@@ -34,7 +35,7 @@ services:
   nginx:
     image: nginx:1.19.3
     ports:
-      - "8002:80"
+      - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./frontend/build:/usr/share/nginx/html/
@@ -42,7 +43,7 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - backend
+      - frontend
 
 
 volumes:
