@@ -16,14 +16,17 @@ password: admin<br/>
 Если не установлен - выполните перейдите по ссылке и выберите необходимый Вам способ установкиDocker: https://docs.docker.com/desktop/<br/>
 
 Клонируйте репозиторий<br/>
-Перейдите в каталог  /infra/  командой cd infra/. Создайте .env файл в формате.<br/>
+Перейдите в каталог  /infra/  командой cd infra/. Создайте .env файл в формате<br/>
 
 DB_ENGINE=django.db.backends.postgresql<br/>
 DB_NAME=postgres<br/>
 POSTGRES_USER=postgres<br/>
 POSTGRES_PASSWORD=postgres<br/>
-DB_HOST=db<br/>
+DB_HOST=localhost<br/>
 DB_PORT=5432<br/>
+ALLOWED_HOSTS=http://localhost http://127.0.0.1<br/>
+CSRF_TRUSTED_ORIGINS=http://localhost http://127.0.0.1<br/>
+SECRET_KEY=top_secret<br/>
 
 Не выходя из директории infra запустите установку и сборку контейнеров<br/>
 docker compose up -d --build<br/>
