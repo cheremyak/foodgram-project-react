@@ -1,4 +1,11 @@
-# praktikum_new_diplom
+# http://leoneed.hopto.org
+
+Учетеная запись администратора:<br/>
+login: admin@admin.ru<br/>
+password: admin<br/>
+
+
+
 Запуск сайта локально
 
 # Foodgram - «Продуктовый помощник»
