@@ -1,4 +1,4 @@
-[![CI/CD foodgram](https://github.com/cheremyak/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/cheremyak/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
+[![CI/CD foodgram](http://github.com/cheremyak/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/cheremyak/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
 # http://leoneed.hopto.org
 
 Учетеная запись администратора:<br/>
