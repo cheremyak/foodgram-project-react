@@ -131,8 +131,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.order_by('name'), many=True
     )
     author = UserSerializer(read_only=True)
-    ingredients = IngredientRecipeCreateSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(
+        many=True, source='ingredients_in_recipe', read_only=True
+    )
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField()
 
     class Meta:
         model = Recipe
@@ -207,14 +210,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        if 'ingredients' in validated_data:
-            ingredients = validated_data.pop('ingredients')
-            instance.ingredients.clear()
-            self.create_ingredients(ingredients, instance)
-        if 'tags' in validated_data:
-            tags = validated_data.pop('tags')
-            instance.tags.clear()
-            instance.tags.set(tags)
+        instance.tags.clear()
+        IngredientAmount.objects.filter(recipe=instance).delete()
+        instance.tags.set(validated_data.pop('tags'))
+        ingredients = validated_data.pop('ingredients')
+        self.create_ingredients(instance, ingredients)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
