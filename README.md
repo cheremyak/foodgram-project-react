@@ -5,7 +5,8 @@
 login: admin@admin.ru<br/>
 password: admin<br/>
 
-
+Документация доступна по адресу:<br/>
+http://leoneed.hopto.org/api/docs/<br/>
 
 
 
