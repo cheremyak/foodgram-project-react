@@ -34,7 +34,11 @@ CSRF_TRUSTED_ORIGINS=localhost 127.0.0.1<br/>
 SECRET_KEY=top_secret<br/>
 
 Не выходя из директории infra запустите установку и сборку контейнеров.<br/>
-docker compose up -d --build<br/>
+docker compose up -d --build # сборка и запуск контейнеров<br/>
+docker compose stop # остановка работы контейнеров<br/>
+docker compose down # удаление контейнеров<br/>
+
+
 
 После запуска контейнера сайт доступен по адресу http://localhost/<br/>
 Админ-панель: http://localhost/admin/<br/>
