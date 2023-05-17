@@ -28,8 +28,8 @@ POSTGRES_USER=postgres<br/>
 POSTGRES_PASSWORD=postgres<br/>
 DB_HOST=localhost<br/>
 DB_PORT=5432<br/>
-ALLOWED_HOSTS=http://localhost http://127.0.0.1<br/>
-CSRF_TRUSTED_ORIGINS=http://localhost http://127.0.0.1<br/>
+ALLOWED_HOSTS=localhost 127.0.0.1<br/>
+CSRF_TRUSTED_ORIGINS=localhost 127.0.0.1<br/>
 SECRET_KEY=top_secret<br/>
 
 Не выходя из директории infra запустите установку и сборку контейнеров.<br/>
