@@ -131,9 +131,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.order_by('name'), many=True
     )
     author = UserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(
-        many=True, source='ingredients_in_recipe', read_only=True
-    )
+    ingredients = IngredientRecipeCreateSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField()
 
@@ -188,25 +186,28 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_name(self, data):
         return " ".join(data.split()).strip().lower()
 
-    def create_ingredients(self, ingredients, recipe):
-        IngredientAmount.objects.bulk_create(
-            [
+    @staticmethod
+    def create_ingredients(recipe, ingredients):
+        ingredient_liist = []
+        for ingredient_data in ingredients:
+            ingredient_liist.append(
                 IngredientAmount(
+                    ingredients=ingredient_data.pop('id'),
+                    amount=ingredient_data.pop('amount'),
                     recipe=recipe,
-                    ingredients=ingredient['id'],
-                    amount=ingredient['amount'],
                 )
-                for ingredient in ingredients
-            ]
-        )
+            )
+        IngredientAmount.objects.bulk_create(ingredient_liist)
 
     def create(self, validated_data):
         image = validated_data.pop('image')
-        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(image=image, **validated_data)
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(
+            image=image, **validated_data
+        )
         recipe.tags.set(tags)
-        self.create_ingredients(ingredients, recipe)
+        self.create_ingredients(recipe, ingredients)
         return recipe
 
     def update(self, instance, validated_data):
