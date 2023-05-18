@@ -2,7 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-from django.core.validators import RegexValidator
 
 load_dotenv()
 
@@ -149,8 +148,3 @@ HEX_MAX_CHARS = 7
 TAG_SLUG_MAX_CHARS = 32
 RECIPE_NAME_MAX_CHARS = 200
 MIN_COOKING_TIME_AMOUNT = 1
-EN_RU_LETTERS_ONLY = RegexValidator(
-    regex='[A-zА-яЁё]',
-    message='При вводе имен/фамилий/названий рецептов допустимы только буквы кириллицы и латиницы. Проверьте введенные данные',
-    code='invalid_regex'
-)

@@ -4,6 +4,8 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models.functions import Length
 
+from users.validators import NamesValidator
+
 
 User = get_user_model()
 
@@ -96,7 +98,7 @@ class Recipe(models.Model):
     name = models.CharField(
         max_length=settings.RECIPE_NAME_MAX_CHARS,
         verbose_name='Название рецепта',
-        validators=[settings.EN_RU_LETTERS_ONLY]
+        validators=[NamesValidator()]
     )
     text = models.TextField(
         verbose_name='Описание рецепта'

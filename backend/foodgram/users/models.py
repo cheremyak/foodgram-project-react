@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from .validators import validate_username
+from .validators import NamesValidator, validate_username
 
 
 class User(AbstractUser):
@@ -25,13 +25,13 @@ class User(AbstractUser):
         max_length=settings.USER_MAX_CHARS,
         blank=False,
         verbose_name='Имя',
-        validators=[settings.EN_RU_LETTERS_ONLY]
+        validators=[NamesValidator()]
     )
     last_name = models.CharField(
         max_length=settings.USER_MAX_CHARS,
         blank=False,
         verbose_name='Фамилия',
-        validators=[settings.EN_RU_LETTERS_ONLY]
+        validators=[NamesValidator()]
     )
     subscribe = models.ManyToManyField(
         verbose_name='Подписка на других пользователей',
