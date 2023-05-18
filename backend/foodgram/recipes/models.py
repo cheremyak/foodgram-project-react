@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models.functions import Length
 
-from users.models import en_ru_letters_only
 
 User = get_user_model()
 
@@ -15,7 +14,6 @@ class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Ингредиент',
         max_length=settings.RECIPES_MAX_CHARS,
-        validators=[en_ru_letters_only]
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
@@ -97,7 +95,8 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=settings.RECIPE_NAME_MAX_CHARS,
-        verbose_name='Название рецепта'
+        verbose_name='Название рецепта',
+        validators=[settings.EN_RU_LETTERS_ONLY]
     )
     text = models.TextField(
         verbose_name='Описание рецепта'

@@ -184,7 +184,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_name(self, data):
-        return " ".join(data.split()).strip().lower()
+        return " ".join(data.split()).strip()
 
     @staticmethod
     def create_ingredients(recipe, ingredients):

@@ -8,6 +8,7 @@ from .models import (Cart, Favorite, Ingredient,
 class IngredientInline(admin.TabularInline):
     model = IngredientAmount
     extra = 1
+    min_num = 1
 
 
 @admin.register(Tag)
@@ -56,7 +57,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(IngredientAmount)
 class IngredientAmountAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'amount', 'recipe')
+    def get_model_perms(self, request):
+        return {}
 
 
 @admin.register(Favorite)
