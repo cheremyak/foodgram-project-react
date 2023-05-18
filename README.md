@@ -43,4 +43,3 @@ docker compose down # удаление контейнеров<br/>
 После запуска контейнера сайт доступен по адресу http://localhost/<br/>
 Админ-панель: http://localhost/admin/<br/>
 
-
